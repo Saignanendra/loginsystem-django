@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Website</title>
+      {% load static %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  </head>
+  <body>
+
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="{% static 'moviesweb.png' %}" alt="My Website"  >
+        </div>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+          <li class="user-profile">
+            {% if user.is_authenticated %}
+            <a href="{% url 'signout' %}">SignOut</a>
+            {% else %}
+            <a href="/signin">Sign In</a>
+            <a href="/signup">Sign Up</a>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <div>
+   <b> {% for message in messages %}
+    {{message}}
+     {% endfor %}</b>
+   </div>
+
+
+    <main>
+      <h1>Welcome to My Website</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <div class="grid-container">
+        <div class="grid-item">
+          <h2>Service 1</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+        <div class="grid-item">
+          <h2>Service 2</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+        <div class="grid-item">
+          <h2>Service 3</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+        <div class="grid-item">
+          <h2>Service 4</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+      </div>
+    </main>
+    <div class="genre-grid">
+  <h2>Movie Genres</h2>
+  <ul>
+    <li class="genre-item">Action</li>
+    <li class="genre-item">Comedy</li>
+    <li class="genre-item">Drama</li>
+    <li class="genre-item">Horror</li>
+    <li class="genre-item">Sci-Fi</li>
+  </ul>
+</div>
+
+    <footer>
+      <p>&copy; 2023 My Website</p>
+    </footer>
+  </body>
+</html>
+
