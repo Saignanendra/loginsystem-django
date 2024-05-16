@@ -4,6 +4,7 @@
     <title>My Website</title>
       {% load static %}
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
   </head>
   <body>
 
@@ -19,7 +20,7 @@
           <li><a href="#">Contact</a></li>
           <li class="user-profile">
             {% if user.is_authenticated %}
-            <a href="{% url 'signout' %}">SignOut</a>
+            <a href="{% url 'sign_out' %}">SignOut</a>
             {% else %}
             <a href="/signin">Sign In</a>
             <a href="/signup">Sign Up</a>
@@ -28,49 +29,139 @@
         </ul>
       </nav>
     </header>
-    <div>
-   <b> {% for message in messages %}
-    {{message}}
-     {% endfor %}</b>
-   </div>
+      
+     
 
+    <div class="container border mt-5 p-5 rounded">
 
-    <main>
-      <h1>Welcome to My Website</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-      <div class="grid-container">
-        <div class="grid-item">
-          <h2>Service 1</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </div>
-        <div class="grid-item">
-          <h2>Service 2</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </div>
-        <div class="grid-item">
-          <h2>Service 3</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </div>
-        <div class="grid-item">
-          <h2>Service 4</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success alert-dismissible text-center mb-3">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                
+               {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+      <div class="d-flex justify-content-between align-items-center ">
+        {% if user.is_authenticated %}
+        <a href="" data-bs-toggle="modal" data-bs-target="#addstudentModal" class="btn btn-primary px-4 py-2 btn-sm">Add New Studend</a>
+        {% endif %}
+        <form action="" method="POST" class="d-flex"> {% csrf_token %}
+          <input type="search" name="searchquery" class="form-control" placeholder="Search...">
+          <button class="btn btn-success mx-2" name="search">Search</button>
+        </form>
+
+      </div>
+          <table class="table mt-5 table-bordered">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Student Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student in students %}
+                <tr>
+                  <th>{{ student.id }}</th>
+                  <td>{{ student.name }}</td>
+                  <td>{{ student.email }}</td>
+                  {% if user.is_authenticated %}
+                  <td>
+                   <a href=" " data-bs-toggle="modal" data-bs-target="#updatestudentModal_{{ student.id }}" class="btn btn-success btn-sm"><i class="fa-solid fa-pen-to-square"></i> edit</a>
+                   <a href=" " data-bs-toggle="modal" data-bs-target="#deletestudentModal_{{ student.id }}" class="btn btn-danger btn-sm"><i class="fa-solid fa-pen-to-square"></i> delete </a>
+                  </td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    </div>
+
+  
+      <!-- Modal for Add new student -->
+      <div class="modal fade" id="addstudentModal" tabindex="-1" aria-labelledby="addstudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form method="POST" action=""> {% csrf_token %} 
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addstudentModalLabel">Add New Student</h1>
+              </div>
+              <div class="modal-body">
+                <div class="">
+                  <label for="name">Student Name </label>
+                  <input type="text" name="name" class="form-control" id="name"  required>
+                </div>
+                <div class="">
+                  <label for="email">Student Email </label>
+                  <input type="email" name="email" class="form-control" id="email" required>
+                </div>        
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" name="add" class="btn btn-success">Add New Student</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    </main>
-    <div class="genre-grid">
-  <h2>Movie Genres</h2>
-  <ul>
-    <li class="genre-item">Action</li>
-    <li class="genre-item">Comedy</li>
-    <li class="genre-item">Drama</li>
-    <li class="genre-item">Horror</li>
-    <li class="genre-item">Sci-Fi</li>
-  </ul>
-</div>
 
-    <footer>
-      <p>&copy; 2023 My Website</p>
-    </footer>
+      
+      {% for student in students %} 
+      <!-- Modal for Update student -->
+      <div class="modal fade" id="updatestudentModal_{{ student.id }}" tabindex="-1" aria-labelledby="updatestudentModalLabel_{{ student.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" action=""> {% csrf_token %} 
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="updatestudentModalLabel_{{ student.id }}">update Student</h1>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" name="id" value="{{ student.id }}">
+                  <div class="">
+                    <label for="name">Student Name </label>
+                    <input type="text" name="name" class="form-control" id="name" value="{{ student.name }}" >
+                  </div>
+                  <div class="">
+                    <label for="email">Student Email </label>
+                    <input type="email" name="email" class="form-control" id="email" value="{{ student.email }}">
+                  </div>        
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" name="update" class="btn btn-success">Update Student</button>
+                </div>
+              </div>
+            </form>
+        </div>
+      </div>
+
+      <!-- Modal for Delete student -->
+      <div class="modal fade" id="deletestudentModal_{{ student.id }}" tabindex="-1" aria-labelledby="deletestudentModalLabel_{{ student.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+          <form method="POST" action=""> {% csrf_token %} 
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deletestudentModalLabel_{{ student.id }}">Delete Student</h1>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="id" value="{{ student.id }}">
+                Are you sure? you want to delete?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" name="delete" class="btn btn-danger">Delete Student</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+   
   </body>
+  <script src="{% static 'js/bootstrap.js' %}"></script>
 </html>
 

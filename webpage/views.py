@@ -1,12 +1,78 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
-from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.db.models import Q
+from .models import User1, Student
+
+from rest_framework.generics import RetrieveUpdateDestroyAPIView,ListCreateAPIView
+from .models import Task
+from .serializers import TaskSerializer
 # Create your views here.
 
+# Rest API Practice
+
+class TaskList(ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+class TaskDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer    
+
 def home(request):
-    return render(request, 'home.html')
+
+    students = Student.objects.all()
+
+    if request.method == "POST":
+
+        if "add" in request.POST:
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+
+            Student.objects.create(
+                name = name,
+                email = email
+            )
+            messages.success(request, "Student added successfully")
+
+
+        elif "update" in request.POST:
+
+            id = request.POST.get('id')
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+
+            update_student = Student.objects.get(id=id)
+            update_student.name = name
+            update_student.email = email
+            update_student.save()
+
+            messages.success(request, "Student Updates successfully")
+
+        elif "delete" in request.POST:
+
+            id = request.POST.get('id')
+
+            Student.objects.get(id=id).delete()
+
+            messages.success(request, "Student Deleted successfully")
+
+        elif "search" in request.POST:
+
+            query = request.POST.get("searchquery")  
+            students = Student.objects.filter(Q(name__icontains=query) | Q(email__icontains=query))  
+
+        
+ 
+
+
+
+    context = {
+           "students":students,
+    }
+    return render(request, 'home.html', context=context)
+
 
 def signup(request):
     if request.method == "POST":
@@ -35,20 +101,23 @@ def signup(request):
         if password != confirm_password:
             messages.error(request, "password didn't match")
 
-        user = User.objects.create_user(username=username,password=password)
+        user = User.objects.create_user(username=username, password=password)
+        user1 = User1.objects.create(username=username, password=password, email=email)
+        user1.save()
         user.email = email
         user.save()
 
         messages.success(request, "your account has been successfully created ")
         return redirect('/signin')
     else:
-       return render(request, 'signup.html')
+        return render(request, 'signup.html')
+
 
 def signin(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(username=username,password=password)
+        user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, "Successfully logged In")
@@ -59,8 +128,10 @@ def signin(request):
             return redirect('/signup')
 
     else:
-      return render(request, 'signin.html')
-def signout(request):
-     logout(request)
-     messages.success(request, "successfully logged out")
-     return redirect('/')
+        return render(request, 'signin.html')
+
+
+def sign_out(request):
+    logout(request)
+    messages.success(request, "successfully logged out")
+    return redirect('/')

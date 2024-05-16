@@ -11,21 +11,30 @@ Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
-    1. Import the include() function: from django.urls import include, path
+    1. Import to include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
-from webpage.views import *
 
+from webpage.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
+
     path('signup/', signup, name='signup'),
     path('signin/', signin, name="signin"),
-    path('logout/', signout, name="signout")
+    path('logout/', sign_out, name="sign_out"),
+
+    path('api-auth/', include('rest_framework.urls')),
+    path('tasks/', TaskList.as_view(), name="task-list"),
+    path('tasks/<int:pk>', TaskDetail.as_view(), name="task-details"),
    ]
 
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
